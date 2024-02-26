@@ -1,0 +1,27 @@
+name: CI 
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${ { matrix.config.name } }
+    runs-on: ${ { matrix.config.os } }
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - { name: Linux GCC,   os: ubuntu-22.04, flags: -GNinja }
+        - { name: Linux Clang, os: ubuntu-22.04, flags: -DCMAKE_CXX_COMPILER=clang++ -GNinja }
+        
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Get CMake and Ninja
+      uses: lukka/get-cmake@latest
+      with:
+        ninjaVersion: latest
+
+    - name: Test 
+      run: make test-debug && make test-release 
